@@ -7,7 +7,6 @@ RUN rm ${PHP_INI_DIR}/php.ini-development \
     && docker-php-ext-install bcmath pdo_mysql opcache && docker-php-ext-enable bcmath pdo_mysql opcache \ 
     && apk del buildDeps
 
-    #restore the previous packages you installed
 
 FROM php:8.0.3-cli-alpine3.13 as worker
 WORKDIR /var/www/html
