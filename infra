@@ -1,0 +1,167 @@
+#!/bin/bash
+bold=$(tput bold)
+normal=$(tput sgr0)
+
+compose="/usr/local/bin/docker-compose"
+DOCKER_COMPOSE="docker-compose.yaml"
+if [ "$1" == "release" ]; then
+    export DOCKER_COMPOSE="docker-compose.release.yaml"
+    export env="release"
+else
+    if [ "$1" == "local" ]; then
+    export DOCKER_COMPOSE="docker-compose.yaml"
+    export env="local"
+    fi
+fi
+
+function compose() {
+   composeFile="$(pwd)/${DOCKER_COMPOSE}"
+   sudo $compose -f "$composeFile" "$@"
+}
+
+function compose-build() {
+    compose build ${@:2:10}
+}
+
+function compose-up(){
+    compose up -d --remove-orphans
+}
+
+function compose-down(){
+    compose down
+}
+
+function compose-logs(){
+    compose logs ${@:2:10}
+}
+
+function compose-restart(){
+    compose restart ${@:2:10}
+}
+
+function compose-sh(){
+    var=($@)
+    if [ ${#var[@]} != 2 ]
+     then
+        compose-usage
+     else
+        compose exec $2 sh
+     fi
+}
+
+function compose-artisan(){
+    compose exec worker php artisan ${@:2:10}
+}
+
+function compose-test(){
+    compose exec worker vendor/bin/phpunit ${@:2:10}
+}
+
+function compose-composer(){
+    compose run composer ${@:2:10}
+}
+
+function compose-mysql(){
+    compose exec mysql mysql -u root
+}
+
+function compose-redis(){
+    compose exec redis redis-cli
+}
+
+function compose-usage(){
+    cat <<Usage
+Counter App Dev Tools [${bold}${env}${normal}]
+
+Usage:
+   infra command [arguments]
+
+Available commands:
+   init                  Initialize the infrastructure for the first time
+   up                    Start the infrastructure
+   down                  Stop infrastructure
+   build [services?]     Build image for all or given services
+   logs [services?]      View logs for all or given services
+   restart [services?]	 Restart all or given services
+   sh [service]          Exec sh in the given service
+   artisan [arguments?]  Exec artisan command in the worker service
+   test [arguments?]     Run phpunit in the worker service
+   composer [arguments?] Run composer in the composer service
+   mysql                 Run mysql cli as root in the mysql service
+   redis                 Run redis cli in the redis service
+   help                  Print all the available commands
+   release               Use release image
+   local                 Use local image
+Usage
+}
+
+export $(cat /home/adel/Desktop/cloudengineer-counter/.env | xargs)
+if [ -z "$DOCKER_COMPOSE_USER" ] || [ -z "$DOCKER_COMPOSE_USER_GROUP" ]; then 
+    echo "Environment variable need to be set to run commands" && exit 1; 
+fi
+
+
+
+case "$1" in
+    init)
+        file=./.env
+        compose-build
+        compose-up
+        if !(test -f "$file"); then
+            printf "\nAPP_KEY=" >> .env
+        else 
+            if !(grep -q "APP_KEY=" "$file"); then
+                printf "\nAPP_KEY=" >> .env
+            fi
+        fi
+        compose-composer install
+        compose-artisan key:generate
+        compose-artisan migrate
+        
+    ;;
+    up)
+        compose-up
+    ;;
+    down)
+        compose-down
+    ;;
+    build)
+        compose-build $@
+    ;;
+    logs)
+        compose-logs $@
+    ;;
+    restart)
+        compose-restart $@
+    ;;
+    sh)
+        compose-sh $@
+    ;;
+    artisan)
+        compose-artisan $@
+    ;;
+    test)
+        compose-test $@
+    ;;
+    composer)
+        compose-composer $@
+    ;;
+    mysql)
+        compose-mysql
+    ;;
+    redis)
+        compose-redis
+    ;;
+    release)
+        compose-up
+    ;;
+    local)
+        compose-up
+    ;;
+    help)
+        compose-usage
+    ;;
+    *)
+        compose-usage
+    ;;
+esac

@@ -1,0 +1,120 @@
+version: "3"
+
+
+services:
+  nginx:
+    build:
+      context: ./
+      dockerfile: infrastructure/nginx/release/Dockerfile
+    image: jakmall/recruitment/cloud-engineer/counter/nginx/release
+    environment:
+      - FASTCGI_PASS=php-fpm:9000
+    env_file:
+      - .env
+    ports:
+      - "${DOCKER_COMPOSE_NGINX_HOST_PORT}:80"
+    depends_on:
+      - php-fpm
+    networks:
+      - frontend
+
+
+  php-fpm:
+    build:
+      context: ./
+      dockerfile: infrastructure/php/release/Dockerfile
+      target: php-fpm
+    image: jakmall/recruitment/cloud-engineer/counter/php-fpm/release
+    env_file:
+      - .env
+      - infrastructure/php/.env.local
+    #user: "${DOCKER_COMPOSE_USER}:${DOCKER_COMPOSE_USER_GROUP}"
+    depends_on:
+      - mysql
+      - redis
+      - mailhog
+    entrypoint: /usr/local/sbin/php-fpm
+    networks:
+      - frontend
+      - backend
+
+
+  worker:
+    build:
+      context: ./
+      dockerfile: infrastructure/php/release/Dockerfile
+      target: worker
+    image: jakmall/recruitment/cloud-engineer/counter/php-cli/release
+    container_name: worker
+    env_file:
+      - .env
+      - infrastructure/php/.env.local
+    #user: "${DOCKER_COMPOSE_USER}:${DOCKER_COMPOSE_USER_GROUP}"
+    depends_on:
+      - mysql
+      - redis
+      - mailhog
+    entrypoint: /usr/local/bin/php /var/www/html/artisan queue:work 
+    networks:
+      - backend
+
+  schedular:
+    image: mcuadros/ofelia:v0.3.4
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      ofelia.job-exec.datecron.schedule: "@every 1m"
+      ofelia.job-exec.datecron.command: "php artisan schedule:run"
+      ofelia.job-exec.datecron.container: "worker"
+    networks:
+      - backend
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    env_file:
+      - .env
+    ports:
+      - "${DOCKER_COMPOSE_MAILHOG_HOST_PORT}:8025"
+    networks:
+      - backend
+
+  mysql:
+    image: mysql:8.0.23
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=counter
+      - MYSQL_USER=counter_app
+      - MYSQL_PASSWORD=secret
+    volumes:
+      - 'mysql-db:/var/lib/mysql'
+    ports:
+      - "3306:3306"
+    networks:
+      - backend
+
+  redis:
+    image: redis:6.2.1-alpine
+    volumes:
+      - 'redis:/usr/local/etc/redis'
+    networks:
+      - backend
+
+  # composer:
+  #   image: composer:2.0.11
+  #   env_file:
+  #     - .env
+  #   user: "${DOCKER_COMPOSE_USER}:${DOCKER_COMPOSE_USER_GROUP}"
+  #   volumes:
+  #     - './:/app'
+  #   command: install
+  #   networks:
+  #     - backend
+
+volumes:
+  mysql-db:
+  redis:
+
+networks:
+  frontend:
+  backend:
