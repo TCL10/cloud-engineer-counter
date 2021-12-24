@@ -16,3 +16,6 @@ This is made to ease the process for testing locally. Please follow the instruct
 9. You can see the logs of one, multiple or all containers run `./infra logs <container-name>`, `./infra logs <container-name> <container-name>`, or `./infra logs` with no arguements to show logs for all containers
 10. To see current environment run the `./infra help` to see the current environment 
     ![Environment](docs/environment.png)
+
+
+**NOTE:** On the first initialization you might face issue to connect to mysql, just wait a bit till the mysql become readily accessible. To confirm it accesible run `./infra mysql`. Once it's accessible rerun the initialization `./infra init`. 
