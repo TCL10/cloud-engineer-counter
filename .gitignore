@@ -1,5 +1,5 @@
-/storage/*.key
-/vendor
-.env
-.env.docker-compose
-.phpunit.result.cache
+# /storage/*.key
+# /vendor
+# #.env
+# .env.docker-compose
+# .phpunit.result.cache
