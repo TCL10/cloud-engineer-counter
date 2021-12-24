@@ -28,7 +28,6 @@ services:
     env_file:
       - .env
       - infrastructure/php/.env.local
-    #user: "${DOCKER_COMPOSE_USER}:${DOCKER_COMPOSE_USER_GROUP}"
     depends_on:
       - mysql
       - redis
@@ -49,7 +48,6 @@ services:
     env_file:
       - .env
       - infrastructure/php/.env.local
-    #user: "${DOCKER_COMPOSE_USER}:${DOCKER_COMPOSE_USER_GROUP}"
     depends_on:
       - mysql
       - redis
@@ -99,17 +97,6 @@ services:
       - 'redis:/usr/local/etc/redis'
     networks:
       - backend
-
-  # composer:
-  #   image: composer:2.0.11
-  #   env_file:
-  #     - .env
-  #   user: "${DOCKER_COMPOSE_USER}:${DOCKER_COMPOSE_USER_GROUP}"
-  #   volumes:
-  #     - './:/app'
-  #   command: install
-  #   networks:
-  #     - backend
 
 volumes:
   mysql-db:

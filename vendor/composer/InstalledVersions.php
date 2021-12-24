@@ -25,12 +25,12 @@ class InstalledVersions
 private static $installed = array (
   'root' => 
   array (
-    'pretty_version' => 'dev-master',
-    'version' => 'dev-master',
+    'pretty_version' => 'dev-main',
+    'version' => 'dev-main',
     'aliases' => 
     array (
     ),
-    'reference' => '51912c511025b0dbc7abd26f361553d9b468317f',
+    'reference' => '34d66265b03304de6d8a3b4ec655402af9a22f53',
     'name' => 'jakmall/counter',
   ),
   'versions' => 
@@ -430,12 +430,12 @@ private static $installed = array (
     ),
     'jakmall/counter' => 
     array (
-      'pretty_version' => 'dev-master',
-      'version' => 'dev-master',
+      'pretty_version' => 'dev-main',
+      'version' => 'dev-main',
       'aliases' => 
       array (
       ),
-      'reference' => '51912c511025b0dbc7abd26f361553d9b468317f',
+      'reference' => '34d66265b03304de6d8a3b4ec655402af9a22f53',
     ),
     'kodova/hamcrest-php' => 
     array (

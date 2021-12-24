@@ -51,6 +51,7 @@ function compose-sh(){
 
 function compose-artisan(){
     compose exec worker php artisan ${@:2:10}
+    
 }
 
 function compose-test(){
@@ -115,9 +116,8 @@ case "$1" in
             fi
         fi
         compose-composer install
-        compose-artisan key:generate
-        compose-artisan migrate
-        
+        compose-artisan n key:generate
+        compose-artisan n migrate
     ;;
     up)
         compose-up
