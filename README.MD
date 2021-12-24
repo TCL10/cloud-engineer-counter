@@ -12,7 +12,7 @@ This is made to ease the process for testing locally. Please follow the instruct
 6. To enter mysql/redis cli run `./infra mysql` or `./infra redis`
 7. To run artisan commands `./infra artisan <argument>`
 8. To acces the shell of any container run `./infra sh <container-name>`
-    container names: **worker, php-fpm, composer, mysql, redis, nginx, mailhog**
+    container names: **worker, php-fpm, composer, mysql, redis, nginx, mailhog, schedular and composer**
 9. You can see the logs of one, multiple or all containers run `./infra logs <container-name>`, `./infra logs <container-name> <container-name>`, or `./infra logs` with no arguements to show logs for all containers
 10. To see current environment run the `./infra help` to see the current environment 
     ![Environment](docs/environment.png)
